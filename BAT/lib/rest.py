@@ -573,7 +573,7 @@ for k in range(nstates):
       context = thermodynamic_state.create_context(
         integrator,
         platform=platform_name,
-        properties=properties,
+        platform_properties=properties,
       )
       system = context.getSystem()
       for force in system.getForces(): # RIZZI CHECK

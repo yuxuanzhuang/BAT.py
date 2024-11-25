@@ -11,6 +11,8 @@ import numpy as np
 from lib.pymbar import MBAR # multistate Bennett acceptance ratio
 from lib.pymbar import timeseries # timeseries analysis
 from pathlib import Path
+from .utils import run_with_log, antechamber, tleap, cpptraj, parmchk2
+from loguru import logger
 
 def fe_openmm(components, temperature, pose, dec_method, rest, attach_rest, lambdas, dic_itera1, dic_itera2, itera_steps, dt, dlambda, dec_int, weights, blocks, ti_points):
 
@@ -587,7 +589,7 @@ def fe_values(blocks, components, temperature, pose, attach_rest, lambdas, weigh
               k_a = rest[3]
               fe_bd = fe_int(r0, a1_0, t1_0, a2_0, t2_0, t3_0, k_r, k_a, temperature)
           # Get restraint trajectory file
-          sp.call('cpptraj -i restraints.in > restraints.log 2>&1', shell=True)
+          run_with_log(cpptraj + ' -i restraints.in > restraints.log 2>&1')
           # Separate in blocks
           with open("restraints.dat", "r") as fin:
             for line in fin:
@@ -1295,7 +1297,7 @@ def fe_mbar(comp, pose, mode, rest_file, temperature):
       cpptin.close()
 
       FNULL = open(os.devnull, 'w')
-      sp.call(['cpptraj','-i',cppfn], stdout=FNULL, stderr=sp.STDOUT)
+      run_with_log(f'{cpptraj} -i {cppfn}')
 
       with open(acffn, 'r') as acf:
         for line in acf:
@@ -1314,7 +1316,7 @@ def fe_mbar(comp, pose, mode, rest_file, temperature):
             break
           sum += ( 1 - (t/T) )*(v)
 
-      sp.call(['rm',datafn,acffn,cppfn])
+      run_with_log(f'rm {datafn} {acffn} {cppfn}')
 
       return 1+(2*sum)
 
@@ -1655,7 +1657,7 @@ def fe_dd(comp, pose, mode, lambdas, weights, dec_int, dec_method, rest_file, te
         cpptin.close()
 
         FNULL = open(os.devnull, 'w')
-        sp.call(['cpptraj','-i',cppfn], stdout=FNULL, stderr=sp.STDOUT)
+        run_with_log(f'{cpptraj} -i {cppfn}')
 
         with open(acffn, 'r') as acf:
           for line in acf:
@@ -1674,7 +1676,7 @@ def fe_dd(comp, pose, mode, lambdas, weights, dec_int, dec_method, rest_file, te
               break
             sum += ( 1 - (t/T) )*(v)
 
-        sp.call(['rm',datafn,acffn,cppfn])
+        run_with_log(f'rm {datafn} {acffn} {cppfn}')
 
         return 1+(2*sum)
 
