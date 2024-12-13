@@ -602,7 +602,11 @@ def fe_values(blocks, components, temperature, pose, attach_rest, lambdas, weigh
                     unfinished.append(f'fe/{pose}/{folder_2_check}')
         elif comp in componets_dict['dd']:
             for j in range(0, len(lambdas)):
-                folder_2_check = f'{dec_method}/{comp}{j:02d}'
+                if dec_method == 'sdr' or dec_method == 'exchange':
+                    folder = 'sdr'
+                else:
+                    folder = dec_method
+                folder_2_check = f'{folder}/{comp}{j:02d}'
                 if not check_file_exists(folder_2_check):
                     unfinished.append(f'fe/{pose}/{folder_2_check}')
     if unfinished:
